@@ -1,5 +1,8 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import "flatpickr/dist/themes/material_green.css";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { Report } from 'notiflix/build/notiflix-report-aio';
 
 const refs = {
     inputDate: document.querySelector('#datetime-picker'),
@@ -10,13 +13,24 @@ const refs = {
     seconds: document.querySelector('span[data-seconds]'),
 };
 
+let selectedTime = null;
+refs.startBtn.disabled = true;
+
 const options = {
   enableTime: true,
   time_24hr: true,
-  defaultDate: new Date(),
+  defaultDate: Date.now(),
   minuteIncrement: 1,
-  onClose(selectedDates) {
-    console.log(selectedDates[0]);
+    onClose(selectedDates) {
+        if (selectedDates[0] < Date.now()) {
+            Notify.failure('Please choose a date in the future!');
+            // alert('Обрана дата повинна бути у майбутньому!');
+            refs.startBtn.disabled = true;
+        } else {
+            refs.startBtn.disabled = false;
+            selectedTime = selectedDates[0];
+        }
+    //   console.log(selectedDates);
   },
 };
 
@@ -36,10 +50,18 @@ class Timer {
 
         this.intervalId = setInterval(() => {
             const currentTime = Date.now();
-            const deltaTime = currentTime - startTime;
+            const deltaTime = selectedTime - currentTime;
             const time = this.convertMs(deltaTime);
 
             this.onTicTac(time);
+
+            if (deltaTime <= 0) {
+                // Notify.success('Countdown finished');
+                Report.success('Your future is now! :)',
+                    'The past was eaten by Langoliers.',
+                    'Okay',);
+                clearInterval(this.intervalId);
+            }
 
         }, 1000);
     }
@@ -71,10 +93,9 @@ class Timer {
 const timer = new Timer({
     onTicTac: updateClockface
 });
-
-refs.startBtn.addEventListener('click', () => {
-    timer.start();
-});
+flatpickr(refs.inputDate, options);
+refs.startBtn.addEventListener('click', () =>
+    timer.start());
 
 function updateClockface({ days, hours, minutes, seconds }) {
     refs.days.textContent = days;
