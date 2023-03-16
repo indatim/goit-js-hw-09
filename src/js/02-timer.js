@@ -45,7 +45,7 @@ class Timer {
         if (this.isActive) {
         return;
     }
-        const startTime = Date.now();
+        // const startTime = Date.now();
         this.isActive = true;
 
         this.intervalId = setInterval(() => {
