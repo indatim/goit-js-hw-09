@@ -52,10 +52,11 @@ class Timer {
             const currentTime = Date.now();
             const deltaTime = selectedTime - currentTime;
             const time = this.convertMs(deltaTime);
+        
 
             this.onTicTac(time);
 
-            if (deltaTime <= 0) {
+            if (deltaTime <= 1000) {
                 // Notify.success('Countdown finished');
                 Report.success('Your future is now! :)',
                     'The past was eaten by Langoliers.',
